@@ -1,0 +1,3 @@
+# Ignore everything in ansible_collections and roles directories
+ansible_collections/*
+roles/*

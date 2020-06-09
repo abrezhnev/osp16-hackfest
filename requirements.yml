@@ -1,0 +1,11 @@
+---
+roles:
+  - name: ansible-config_template
+    src: https://opendev.org/openstack/ansible-config_template
+    scm: git
+    version: master
+
+collections:
+  - name: tripleo.operator
+    version: 0.2.1
+    source: https://galaxy.ansible.com

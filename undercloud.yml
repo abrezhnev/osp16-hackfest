@@ -1,0 +1,92 @@
+---
+- hosts: undercloud
+  remote_user: stack
+  become: false
+  collections:
+    - tripleo.operator
+  roles:
+    - ansible-config_template
+  vars:
+    install_debug: 'true'
+    install_ceph_ansible: true
+
+  tasks:
+    - name: Install tripleoclient
+      block:
+        - name: install python2 tripleoclient
+          yum:
+            name: python-tripleoclient
+            state: installed
+          become: true
+          when: ansible_distribution_major_version|int <= 7
+
+        - name: install python3 tripleoclient
+          package:
+            name: python3-tripleoclient
+            state: present
+          become: true
+          when: ansible_distribution_major_version|int >= 8
+
+    - name: Install ceph-ansible
+      yum:
+        name: ceph-ansible
+        state: present
+      become: true
+      when: install_ceph_ansible|bool
+
+    - name: Copy the sample undercloud config file
+      copy:
+        src: /usr/share/python-tripleoclient/undercloud.conf.sample
+        dest: "/home/stack/undercloud.conf.sample"
+        remote_src: true
+        owner: stack
+        group: stack
+        mode: 0644
+      become: true
+
+    - name: Configure undercloud.conf
+      config_template:
+        src: "{{ ansible_env.HOME }}/undercloud.conf.sample"
+        dest: "{{ ansible_env.HOME }}/undercloud.conf"
+        remote_src: true
+        render_template: false
+        config_type: ini
+        config_overrides:
+          'DEFAULT':
+            undercloud_debug: false
+            local_ip: 192.168.10.2/24
+            undercloud_public_vip: 192.168.10.3
+            undercloud_admin_vip: 192.168.10.4
+            local_interface: eth0
+            enable_routed_networks: true
+            subnets: leaf0,leaf1
+            local_subnet: leaf0
+            overcloud_domain_name: example.com
+            undercloud_nameservers: 10.1.0.1
+            undercloud_update_packages: false
+            enable_ui: false
+            enable_tempest: false
+            enabled_hardware_types: ipmi
+            generate_service_certificate: false
+            clean_nodes: true
+          'leaf0':
+            cidr: 192.168.10.0/24
+            dhcp_start: 192.168.10.64
+            dhcp_end: 192.168.10.127
+            inspection_iprange: 192.168.10.128,192.168.10.138
+            gateway: 192.168.10.1
+            masquerade: false
+          'leaf1':
+            cidr: 192.168.11.0/24
+            dhcp_start: 192.168.11.64
+            dhcp_end: 192.168.11.127
+            inspection_iprange: 192.168.11.128,192.168.11.138
+            gateway: 192.168.11.1
+            masquerade: false
+
+    - name: Install undercloud
+      include_role:
+        name: tripleo_undercloud_install
+      vars:
+        tripleo_undercloud_install_debug: "{{ install_debug }}"
+
