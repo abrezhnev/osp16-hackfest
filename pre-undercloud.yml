@@ -25,11 +25,16 @@
         key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
         state: present
 
-    - name: Deploy ssh key
-      authorized_key:
-        user: stack
-        key: "{{ lookup('file', '~/.ssh/softlayer.pub') }}"
-        state: present
+    - name: Copy the key pair to the stack user
+      copy:
+        src: "~/.ssh/{{ item }}"
+        dest: "/home/stack/.ssh/{{ item }}"
+        owner: stack
+        group: stack
+        mode: 0400
+      with_items:
+        - id_rsa
+        - id_rsa.pub
 
     - name: Set hostname
       hostname:
