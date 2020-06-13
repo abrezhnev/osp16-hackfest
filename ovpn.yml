@@ -1,0 +1,62 @@
+---
+- hosts: ovpn
+  remote_user: root
+  vars:
+    use_rhsm: false
+    nmcli_ethernet:
+      - { conn_name: eth0, ip4: 192.168.10.253/24, gw4: 192.168.10.1 }
+      - { conn_name: eth1, ip4: 10.1.0.253/24, gw4: 10.1.0.1 }
+
+  tasks:
+    - name: enable EPEL repository
+      yum_repository:
+        name: epel
+        description: "Extra Packages for Enterprise Linux 7 - $basearch"
+        baseurl: "http://download.fedoraproject.org/pub/epel/7/$basearch"
+        gpgcheck: no
+
+    - name: Ensure system is up to date
+      yum:
+        name: '*'
+        state: latest  # noqa 403
+      register: packages_updated
+      become: true
+
+    - name: Install required rpms
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - openvpn
+        - NetworkManager
+        - NetworkManager-openvpn
+        - NetworkManager-glib
+        - nm-connection-editor
+        - libsemanage-python
+        - policycoreutils-python
+
+    - name: disable network service
+      systemd:
+        name: network
+        enabled: no
+
+    - name: enable NetworkManager
+      systemd:
+        name: NetworkManager
+        enabled: yes
+        state: started
+ 
+    - name: configure network connections
+      nmcli:
+        type: ethernet
+        conn_name: '{{ item.conn_name }}'
+        ip4: '{{ item.ip4 }}'
+        gw4: '{{ item.gw4 }}'
+        state: present
+      with_items:
+        - '{{ nmcli_ethernet }}'
+
+    - name: Reboot if necessary
+      reboot:
+      become: true
+      when: packages_updated is changed
