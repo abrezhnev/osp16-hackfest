@@ -55,12 +55,9 @@
           'DEFAULT':
             undercloud_debug: false
             local_ip: 192.168.10.2/24
-            undercloud_public_vip: 192.168.10.3
-            undercloud_admin_vip: 192.168.10.4
+            undercloud_public_host: 10.1.0.3
+            undercloud_admin_host: 192.168.10.3
             local_interface: eth0
-            enable_routed_networks: true
-            subnets: leaf0,leaf1
-            local_subnet: leaf0
             overcloud_domain_name: example.com
             undercloud_nameservers: 10.1.0.1
             undercloud_update_packages: false
@@ -68,20 +65,13 @@
             enable_tempest: false
             enabled_hardware_types: ipmi
             generate_service_certificate: false
-            clean_nodes: true
-          'leaf0':
+            clean_nodes: false
+          'ctlplane-subnet':
             cidr: 192.168.10.0/24
             dhcp_start: 192.168.10.64
             dhcp_end: 192.168.10.127
             inspection_iprange: 192.168.10.128,192.168.10.138
             gateway: 192.168.10.1
-            masquerade: false
-          'leaf1':
-            cidr: 192.168.11.0/24
-            dhcp_start: 192.168.11.64
-            dhcp_end: 192.168.11.127
-            inspection_iprange: 192.168.11.128,192.168.11.138
-            gateway: 192.168.11.1
             masquerade: false
 
     - name: Install undercloud
