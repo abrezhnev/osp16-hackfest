@@ -1,0 +1,85 @@
+---
+- hosts: overcloud
+  remote_user: root
+  vars:
+    use_rhsm: false
+
+  tasks:
+    - name: Create the stack user
+      user:
+        name: stack
+        shell: /bin/bash
+
+    - name: Add the stack user to sudoers
+      copy:
+        dest: "/etc/sudoers.d/stack"
+        content: "stack ALL=(ALL) NOPASSWD: ALL"
+        mode: 0440
+        owner: root
+        group: root
+
+    - name: Deploy ssh key
+      authorized_key:
+        user: stack
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+        state: present
+
+    - name: disable repositories not required for undercloud
+      rhsm_repository:
+        name: "{{ item }}"
+        state: disabled
+      with_items:
+        - rhel-7-server-optional-rpms
+        - rhel-7-server-supplementary-rpms
+        - rhel-7-server-rhceph-3-osd-rpms
+        - rhel-7-server-rhceph-3-mon-rpms
+        - rhel-7-server-openstack-13-optools-rpms
+        - rhel-7-server-openstack-13-devtools-rpms
+      when: use_rhsm|bool
+
+    - name: enable repositories for undercloud
+      rhsm_repository:
+        name: "{{ item }}"
+        state: enabled
+      with_items:
+        - rhel-7-fast-datapath-rpms
+        - rhel-7-server-extras-rpms
+        - rhel-7-server-openstack-13-rpms
+        - rhel-7-server-rh-common-rpms
+        - rhel-7-server-rhceph-3-tools-rpms
+        - rhel-7-server-rpms
+        - rhel-ha-for-rhel-7-server-rpms
+      when: use_rhsm|bool
+
+    - name: enable repositories for undercloud
+      yum_repository:
+        name: "{{ item }}"
+        description: "{{ item }}"
+        baseurl: "http://classroom.example.com/rhel7-repos/{{ item }}/"
+        gpgcheck: no
+      with_items:
+        - rhel-7-fast-datapath-rpms
+        - rhel-7-server-extras-rpms
+        - rhel-7-server-openstack-13-rpms
+        - rhel-7-server-rh-common-rpms
+        - rhel-7-server-rhceph-3-mon-rpms
+        - rhel-7-server-rhceph-3-osd-rpms
+        - rhel-7-server-rhceph-3-tools-rpms
+        - rhel-7-server-rpms
+        - rhel-ha-for-rhel-7-server-rpms
+      when: not use_rhsm|bool
+
+    - name: Ensure system is up to date
+      yum:
+        name: '*'
+        state: latest  # noqa 403
+      register: packages_updated
+
+    - name: Install Heat agent
+      yum:
+        name: 'python-heat-agent*'
+        state: present
+
+    - name: Reboot if necessary
+      reboot:
+      when: packages_updated is changed
