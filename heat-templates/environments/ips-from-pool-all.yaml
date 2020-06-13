@@ -1,0 +1,58 @@
+# Environment file demonstrating how to pre-assign IPs to all node types
+resource_registry:
+  OS::TripleO::ControllerDeployedServer::Ports::ExternalPort: ../network/ports/external_from_pool.yaml
+  OS::TripleO::ControllerDeployedServer::Ports::InternalApiPort: ../network/ports/internal_api_from_pool.yaml
+  OS::TripleO::ControllerDeployedServer::Ports::StoragePort: ../network/ports/storage_from_pool.yaml
+  OS::TripleO::ControllerDeployedServer::Ports::StorageMgmtPort: ../network/ports/storage_mgmt_from_pool.yaml
+  OS::TripleO::ControllerDeployedServer::Ports::TenantPort: ../network/ports/tenant_from_pool.yaml
+  # Management network is optional and disabled by default
+  #OS::TripleO::ControllerDeployedServer::Ports::ManagementPort: ../network/ports/management_from_pool.yaml
+
+  OS::TripleO::ComputeDeployedServer::Ports::ExternalPort: ../network/ports/noop.yaml
+  OS::TripleO::ComputeDeployedServer::Ports::InternalApiPort: ../network/ports/internal_api_from_pool.yaml
+  OS::TripleO::ComputeDeployedServer::Ports::StoragePort: ../network/ports/storage_from_pool.yaml
+  OS::TripleO::ComputeDeployedServer::Ports::StorageMgmtPort: ../network/ports/noop.yaml
+  OS::TripleO::ComputeDeployedServer::Ports::TenantPort: ../network/ports/tenant_from_pool.yaml
+  #OS::TripleO::ComputeDeployedServer::Ports::ManagementPort: ../network/ports/management_from_pool.yaml
+
+parameter_defaults:
+  ControllerDeployedServerIPs:
+    # Each controller will get an IP from the lists below, first controller, first IP
+    external:
+    - 10.1.0.10
+    - 10.1.0.11
+    - 10.1.0.12
+    internal_api:
+    - 172.18.0.10
+    - 172.18.0.11
+    - 172.18.0.12
+    storage:
+    - 172.16.0.10
+    - 172.16.0.11
+    - 172.16.0.12
+    storage_mgmt:
+    - 172.17.0.10
+    - 172.17.0.11
+    - 172.17.0.12
+    tenant:
+    - 172.19.0.10
+    - 172.19.0.11
+    - 172.19.0.12
+    #management:
+    #- 10.2.0.10
+    #- 10.2.0.11
+    #- 10.2.0.12
+  ComputeDeployedServerIPs:
+    # Each compute will get an IP from the lists below, first compute, first IP
+    internal_api:
+    - 172.18.0.13
+    - 172.18.0.14
+    storage:
+    - 172.16.0.13
+    - 172.16.0.14
+    tenant:
+    - 172.19.0.13
+    - 172.19.0.14
+    #management:
+    #- 10.2.0.13
+    #- 10.2.0.14

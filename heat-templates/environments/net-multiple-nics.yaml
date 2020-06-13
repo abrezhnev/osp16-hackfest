@@ -1,0 +1,18 @@
+# This template configures each role to use a separate NIC for
+# each isolated network.
+# This template assumes use of network-isolation.yaml.
+#
+# FIXME: if/when we add functionality to heatclient to include heat
+# environment files we should think about using it here to automatically
+# include network-isolation.yaml.
+resource_registry:
+  # Port assignments for the ControllerDeployedServer
+  OS::TripleO::ControllerDeployedServer::Net::SoftwareConfig: ../network/config/multiple-nics/controllerdeployedserver.yaml
+  # Port assignments for the ComputeDeployedServer
+  OS::TripleO::ComputeDeployedServer::Net::SoftwareConfig: ../network/config/multiple-nics/computedeployedserver.yaml
+  # Port assignments for the BlockStorageDeployedServer
+  OS::TripleO::BlockStorageDeployedServer::Net::SoftwareConfig: ../network/config/multiple-nics/blockstoragedeployedserver.yaml
+  # Port assignments for the ObjectStorageDeployedServer
+  OS::TripleO::ObjectStorageDeployedServer::Net::SoftwareConfig: ../network/config/multiple-nics/objectstoragedeployedserver.yaml
+  # Port assignments for the CephStorageDeployedServer
+  OS::TripleO::CephStorageDeployedServer::Net::SoftwareConfig: ../network/config/multiple-nics/cephstoragedeployedserver.yaml
