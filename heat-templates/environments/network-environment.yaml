@@ -44,7 +44,7 @@ parameter_defaults:
   # Gateway routers for routable networks
   ExternalInterfaceDefaultRoute: '10.1.0.1'
   # Define the DNS servers (maximum 2) for the overcloud nodes
-  DnsServers: ["10.1.0.1"]
+  DnsServers: ["10.149.23.10"]
   # List of Neutron network types for tenant networks (will be used in order)
   NeutronNetworkType: 'vxlan,vlan'
   # The tunnel type for the tenant network (vxlan or gre). Set to '' to disable tunneling.
