@@ -60,7 +60,7 @@
     - name: copy ovpn config
       copy:
         src: "{{ ovpn_config }}"
-        dest: "{{ ansible_env.HOME }}/ovpn_config.ovpn
+        dest: "{{ ansible_env.HOME }}/ovpn_config.ovpn"
 
     - name: Reboot if necessary
       reboot:
