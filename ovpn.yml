@@ -6,6 +6,7 @@
     nmcli_ethernet:
       - { conn_name: eth0, ip4: 192.168.10.253/24, gw4: 192.168.10.1 }
       - { conn_name: eth1, ip4: 10.1.0.253/24, gw4: 10.1.0.1 }
+    ovpn_config: ovpn-phx2.ovpn
 
   tasks:
     - name: enable EPEL repository
@@ -55,6 +56,11 @@
         state: present
       with_items:
         - '{{ nmcli_ethernet }}'
+
+    - name: copy ovpn config
+      copy:
+        src: "{{ ovpn_config }}"
+        dest: "{{ ansible_env.HOME }}/ovpn_config.ovpn
 
     - name: Reboot if necessary
       reboot:
